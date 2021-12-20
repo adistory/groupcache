@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net"
+	"strconv"
 	"testing"
 	"time"
 
@@ -30,33 +31,43 @@ func TestHashing(t *testing.T) {
 
 	// Override the hash function to return easier to reason about values. Assumes
 	// the keys can be converted to an integer.
-	hash := New(512, nil)
+	hash := New(3, func(key []byte) uint32 {
+		i, err := strconv.Atoi(string(key))
+		if err != nil {
+			panic(err)
+		}
+		return uint32(i)
+	})
 
+	// Given the above hash function, this will give replicas with "hashes":
+	// 2, 4, 6, 12, 14, 16, 22, 24, 26
 	hash.Add("6", "4", "2")
 
 	testCases := map[string]string{
-		"12,000":    "4",
-		"11":        "6",
-		"500,000":   "4",
-		"1,000,000": "2",
+		"2":  "2",
+		"11": "2",
+		"23": "4",
+		"27": "2",
 	}
 
 	for k, v := range testCases {
-		if got := hash.Get(k); got != v {
-			t.Errorf("Asking for %s, should have yielded %s; got %s instead", k, v, got)
+		if hash.Get(k) != v {
+			t.Errorf("Asking for %s, should have yielded %s", k, v)
 		}
 	}
 
+	// Adds 8, 18, 28
 	hash.Add("8")
 
-	testCases["11"] = "8"
-	testCases["1,000,000"] = "8"
+	// 27 should now map to 8.
+	testCases["27"] = "8"
 
 	for k, v := range testCases {
-		if got := hash.Get(k); got != v {
-			t.Errorf("Asking for %s, should have yielded %s; got %s instead", k, v, got)
+		if hash.Get(k) != v {
+			t.Errorf("Asking for %s, should have yielded %s", k, v)
 		}
 	}
+
 }
 
 func TestConsistency(t *testing.T) {
@@ -94,7 +105,7 @@ func TestDistribution(t *testing.T) {
 	}
 
 	hashFuncs := map[string]Hash{
-		"fasthash/fnv1": fnv1.HashBytes64,
+		"fasthash/fnv1": fnv1.HashBytes32,
 	}
 
 	for name, hashFunc := range hashFuncs {

@@ -41,7 +41,7 @@ var (
 	serverAddr = flag.String("test_server_addr", "", "Address of the server Child Getters will hit ; used by TestHTTPPool")
 )
 
-func TestHTTPPool(t *testing.T) {
+func AAATestHTTPPool(t *testing.T) {
 	if *peerChild {
 		beChildForTestHTTPPool(t)
 		os.Exit(0)
