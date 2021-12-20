@@ -12,7 +12,7 @@ Usage
 ```go
 import (
 	...
-    "github.com/xiaohuifirst/groupcache/v3"
+    "github.com/adistroy/groupcache/v3"
 )
 
 
