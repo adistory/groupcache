@@ -211,7 +211,7 @@ func newGRPCGetter(address string, dialOpts ...grpc.DialOption) (*grpcGetter, er
 
 func (g *grpcGetter) Get(ctx context.Context, in *pb.GetRequest, out *pb.GetResponse) error {
 	client := gcgrpc.NewPeerClient(g.conn)
-	resp, err := client.Retrieve(context.Background(), &gcgrpc.RetrieveRequest{Group: *in.Group, Key: *in.Key})
+	resp, err := client.Retrieve(ctx, &gcgrpc.RetrieveRequest{Group: *in.Group, Key: *in.Key})
 	if err != nil {
 		return fmt.Errorf("Failed to GET [%s]: %v", in, err)
 	}
@@ -222,7 +222,7 @@ func (g *grpcGetter) Get(ctx context.Context, in *pb.GetRequest, out *pb.GetResp
 
 func (g *grpcGetter) Remove(ctx context.Context, in *pb.GetRequest) error {
 	client := gcgrpc.NewPeerClient(g.conn)
-	_, err := client.Delete(context.Background(), &gcgrpc.DeleteRequest{Group: *in.Group, Key: *in.Key})
+	_, err := client.Delete(ctx, &gcgrpc.DeleteRequest{Group: *in.Group, Key: *in.Key})
 	if err != nil {
 		return fmt.Errorf("Failed to REMOVE [%s]: %v", in, err)
 	}
